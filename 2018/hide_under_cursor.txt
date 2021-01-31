@@ -1,0 +1,38 @@
+// ZBRUSH 2018 - 25.08.2018
+// Written by MrOneTwo - Michal Ciesielski
+// Goes into ZStartup/Macros folder.
+
+[RoutineDef,CheckVersion,//check that version is 4R8
+    [If,([ZBrushInfo,0]< 4.8),
+        [Note,"This script is not for this version of ZBrush"]
+        [Exit]
+    ]
+]//end of routine
+
+[RoutineDef,CheckSubTool,//check that we have a subtool
+    [If,[IExists,Tool:SubTool:Select Down],
+        //do nothing - all OK
+        ,//else not a subtool
+        [Exit]
+    ]
+]//end of routine
+
+[IButton, ???,"Hide subtool under the cursor",
+    [RoutineCall,CheckVersion]
+    [RoutineCall,CheckSubTool]
+    // Store the active subtool index.
+    [VarSet,activST,[SubToolGetActiveIndex]]
+
+    // Change to the subtool under the cursor and, if not hidden, hide it.
+    [IKeyPress, ALT, [CanvasClick,[MouseHPos],[MouseVPos]]]
+    [VarSet,hidingST,[SubToolGetActiveIndex]]
+    [ISet,Tool:Sub Tool:SubTool ScrollBar,0,([SubToolGetCount]-(hidingST+1))]
+    [If,([IModGet,"Tool:Subtool 0"]&32 == 32),
+        [Note,"Is visible\n",,-1]
+        [IModSet, "Tool:Subtool 0", 18]
+    ]
+
+    // Select previously active subtool.
+    [ISet,Tool:Sub Tool:SubTool ScrollBar,0,([SubToolGetCount]-(activST+1))]
+    [SubToolSelect, activST]
+]//end button

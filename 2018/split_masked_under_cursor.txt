@@ -1,0 +1,30 @@
+// ZBRUSH 2018 - 16.03.2018
+// Written by MrOneTwo - Michal Ciesielski
+// Goes into ZStartup/Macros folder.
+// Split masked part of the mesh under cursor into a separate sub tool.
+
+[RoutineDef, CheckVersion, //check the version is 4R8
+    [If, ([ZBrushInfo, 0] < 4.8),
+        [Note, "This script is not for this version of ZBrush"]
+        [Exit]
+    ]
+] //end of routine CheckVersion
+
+[RoutineDef, CheckSubTool,//check that we have a subtool
+    [If, [IExists, Tool:SubTool:Select Down],
+        //do nothing - all OK
+        ,//else not a subtool
+        [Exit]
+    ]
+] //end of routine CheckSubTool
+
+[IButton, ???,"Split masked part of the mesh under cursor into a separate sub tool.",
+    [IFreeze,
+        [RoutineCall, CheckVersion]
+        [RoutineCall, CheckSubTool]
+
+        [IPress, Tool:Polygroups:Group Masked]
+        [IKeyPress, CTRL+SHIFT, [CanvasClick,[MouseHPos],[MouseVPos]]]
+        [IPress, Tool:Subtool:Split Hidden]
+    ]
+] //end of the button

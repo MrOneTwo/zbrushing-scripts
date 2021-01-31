@@ -1,0 +1,24 @@
+// ZBRUSH 2019
+// Written by marcus_civis - http://www.zbrushcentral.com/showthread.php?162766-Hide-subtool-under-mouse
+// Goes into ZStartup/Macros folder.
+
+[IButton,???,"Hide subtool under the cursor",
+    [If,[SubToolGetCount]>1,
+        [IFreeze,
+            [VarSet,autoReset,0]
+            [VarSet,tmpST,[SubToolGetActiveIndex]]
+           	[VarSet,tmpScroll,[IGetSecondary,Tool:Sub Tool:SubTool ScrollBar]]
+            [If,[IGet,Preferences:Edit:Auto Select SubTool]==0,
+                [VarSet,autoReset,1]
+                [ISet,Preferences:Edit:Auto Select SubTool,1]		
+            ]		
+            [IKeyPress,1024,[CanvasClick,[MouseHPos],[MouseVPos]]]
+            [VarSet,activST,[SubToolGetActiveIndex]]
+            [VarSet,st,[SubToolGetStatus,activST]]
+            [SubToolSetStatus,activST,st-0x01]			
+            [SubToolSelect,tmpST]
+            [ISet,Tool:Sub Tool:SubTool ScrollBar,0,tmpScroll]
+            [If,autoReset,[ISet,Preferences:Edit:Auto Select SubTool,0]]
+        ]	
+    ]
+,,0.5]// end of button

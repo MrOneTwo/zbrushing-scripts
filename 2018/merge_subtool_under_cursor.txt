@@ -1,0 +1,50 @@
+// ZBRUSH 2018 - 16.03.2018
+// Written by MrOneTwo - Michal Ciesielski
+// Goes into ZStartup/Macros folder.
+// Merge subtool under cursor to the selected one.
+
+[RoutineDef, CheckVersion, //check the version is 4R8
+    [If, ([ZBrushInfo, 0] < 4.8),
+        [Note, "This script is not for this version of ZBrush"]
+        [Exit]
+    ]
+] //end of routine CheckVersion
+
+[RoutineDef, CheckSubTool,//check that we have a subtool
+    [If, [IExists, Tool:SubTool:Select Down],
+        //do nothing - all OK
+        ,//else not a subtool
+        [Exit]
+    ]
+] //end of routine CheckSubTool
+
+[IButton, ???,"Merge subtool under cursor to the selected one",
+    [IFreeze,
+        [RoutineCall, CheckVersion]
+        [RoutineCall, CheckSubTool]
+        [VarSet, activeST, [SubToolGetActiveIndex]]
+        [VarDef, activeSTName, ""]
+        [VarSet, activeSTName, [IGetTitle,Tool:ItemInfo]]
+        //[MessageOK, activeSTName]
+
+        // Move the subtool under cursor below the active subtool.
+        [IKeyPress, ALT, [CanvasClick,[MouseHPos],[MouseVPos]]]
+        [VarSet, targetST, [SubToolGetActiveIndex]]
+        [SubToolSelect, targetST]
+        [VarSet, jumps, targetST-activeST]
+        // jumps > 0 target is below the active
+        // jumps < 0 target is above the active
+        [If,
+            jumps > 0,
+            // target is below the active
+            [Loop, ABS(jumps-1), [Ipress, Tool:SubTool:MoveUp]]
+            [SubToolSelect, activeST]
+            [ISet, Tool:SubTool:SubTool ScrollBar, 0, ([SubToolGetCount]-(activeST+1))],
+            // target is above the active
+            [Loop, ABS(jumps)  , [Ipress, Tool:SubTool:MoveDown]]
+            [SubToolSelect, activeST-1]
+            [ISet, Tool:SubTool:SubTool ScrollBar, 0, ([SubToolGetCount]-(activeST))]
+        ]
+        [IPress, Tool:SubTool:MergeDown]
+    ]
+] //end of the button
